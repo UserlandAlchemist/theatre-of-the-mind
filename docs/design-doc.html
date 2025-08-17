@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Theatre of the Mind</title>
+  <style>
+    body { margin: 2rem auto; max-width: 900px; font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif; }
+    pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .container { padding: 0 1rem; }
+    .toc { margin-bottom: 1rem; }
+    a { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Theatre of the Mind</h1>
+    <p class="toc">
+      <a href="https://github.com/UserlandAlchemist/theatre-of-the-mind">GitHub repo</a> ·
+      <a href="./index.html">README</a>
+    </p>
+    <div id="content">Loading Design Doc…</div>
+  </div>
+
+  <!-- marked.js (client-side Markdown renderer) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    const README_URL = 'https://cdn.jsdelivr.net/gh/UserlandAlchemist/theatre-of-the-mind@main/docs/design-doc.md';
+    fetch(README_URL)
+      .then(r => r.ok ? r.text() : Promise.reject(r.status))
+      .then(md => { document.getElementById('content').innerHTML = marked.parse(md); })
+      .catch(err => { document.getElementById('content').textContent = 'Failed to load design doc: ' + err; });
+  </script>
+</body>
+</html>
