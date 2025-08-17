@@ -1,0 +1,21 @@
+site_name: Theatre of the Mind — PRIVATE
+
+theme:
+  name: cinder
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - attr_list
+  - tables
+
+nav:
+  - Home: index.md
+  - Design: design-doc.md
+  - Dev Notes: dev-notes.md
+  - Private:
+      - B1 Module: private/b1/b1-clean.md
+
+extra_css:
+  - extra.css

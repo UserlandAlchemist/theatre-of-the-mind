@@ -1,0 +1,19 @@
+site_name: Theatre of the Mind
+site_url: https://theatreofthemind.cc
+repo_url: https://github.com/UserlandAlchemist/theatre-of-the-mind
+theme:
+  name: cinder
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - attr_list
+  - tables
+nav:
+  - Home: index.md
+  - Design: design-doc.md
+  - Dev Notes: dev-notes.md
+
+extra_css:
+  - extra.css
