@@ -48,7 +48,7 @@ Theatre of the Mind is layered to keep game logic portable and avoid lock-in:
   - Runs as a separate process, making it easy to swap models or distribute later.  
 
 - **Rulepacks**  
-  - `bx/`, `pf2/`, `homebrew/` etc. implement the adjudication interface.  
+  - `bx/`, `becmi/`, `homebrew/` etc. implement the adjudication interface.  
   - Translate neutral challenges into ruleset-specific mechanics.  
 
 ---
