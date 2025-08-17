@@ -26,7 +26,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pandoc
 
-      - name: Ensure docs dir & assets
+      - name: Ensure docs dir & assets (no heredocs)
         run: |
           set -euo pipefail
           mkdir -p docs
@@ -73,26 +73,29 @@ jobs:
             > docs/_footer.html
           fi
 
-      - name: Render README -> docs/index.html
+      - name: Render README -> docs/index.html (with anchors)
         run: |
           pandoc README.md \
             --from=gfm --to=html5 --standalone \
-            --metadata title="Theatre of the Mind" \
+            --section-divs \
             --toc --toc-depth=3 \
+            --metadata title="Theatre of the Mind" \
             --include-before-body=docs/_header.html \
             --include-after-body=docs/_footer.html \
             --css _style.css \
             -o docs/index.html
 
-      - name: Render every docs/*.md -> docs/*.html
+      - name: Render every docs/*.md -> docs/*.html (with anchors)
         run: |
+          set -euo pipefail
           shopt -s nullglob
           for file in docs/*.md; do
-            base=$(basename "$file" .md)
+            base="$(basename "$file" .md)"
             pandoc "$file" \
               --from=gfm --to=html5 --standalone \
-              --metadata title="$base — Theatre of the Mind" \
+              --section-divs \
               --toc --toc-depth=3 \
+              --metadata title="$base — Theatre of the Mind" \
               --include-before-body=docs/_header.html \
               --include-after-body=docs/_footer.html \
               --css _style.css \
@@ -101,31 +104,27 @@ jobs:
 
       - name: Build docs/_toc.html and docs/docs.html
         run: |
-          # Build a simple HTML TOC for all docs/*.md (sorted by name)
+          set -euo pipefail
           {
             echo "<ul>"
             for file in $(ls -1 docs/*.md 2>/dev/null | sort); do
-              base=$(basename "$file" .md)
-              # Extract first H1 as the title; fallback to filename
-              title=$(grep -m1 -E '^[[:space:]]*# ' "$file" | sed 's/^[[:space:]]*#\s*//')
+              base="$(basename "$file" .md)"
+              title="$(grep -m1 -E '^[[:space:]]*# ' "$file" | sed 's/^[[:space:]]*#\s*//')"
               if [ -z "$title" ]; then title="$base"; fi
               echo "<li><a href=\"./$base.html\">$title</a></li>"
             done
             echo "</ul>"
           } > docs/_toc.html
 
-          # Wrap TOC into a docs.html page with header/footer includes
-          {
-            cat docs/_header.html
-            echo "<h1>Documentation</h1>"
-            cat docs/_toc.html
-            cat docs/_footer.html
-          } > docs/docs.html
+          cat docs/_header.html > docs/docs.html
+          echo "<h1>Documentation</h1>" >> docs/docs.html
+          cat docs/_toc.html >> docs/docs.html
+          cat docs/_footer.html >> docs/docs.html
 
       - name: Commit generated files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'docs: auto-render Markdown + generate docs index (TOC)'
+          commit_message: 'docs: auto-render Markdown to static HTML + anchors + docs index'
           file_pattern: |
             docs/*.html
             docs/_toc.html
