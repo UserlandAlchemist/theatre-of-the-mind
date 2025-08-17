@@ -42,6 +42,7 @@ jobs:
             --section-divs \
             --toc --toc-depth=3 \
             --metadata title="Theatre of the Mind" \
+            --variable=class:markdown-body \
             --include-before-body=docs/_header.html \
             --include-after-body=docs/_footer.html \
             --css _style.css \
@@ -57,7 +58,7 @@ jobs:
               --section-divs \
               --toc --toc-depth=3 \
               --metadata title="$base — Theatre of the Mind" \
-                --variable=class:markdown-body \
+              --variable=class:markdown-body \
               --include-before-body=docs/_header.html \
               --include-after-body=docs/_footer.html \
               --css _style.css \
