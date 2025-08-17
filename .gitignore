@@ -50,3 +50,6 @@ evennia_server/web/static/
 
 # Bytecode in server tree
 evennia_server/**/*.pyc
+
+# never commit the nested private repo
+private/
