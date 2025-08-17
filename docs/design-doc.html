@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>design-doc — Theatre of the Mind</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="_style.css" />
+</head>
+<body>
+<header><nav><a href='./index.html'>Home</a> · <a href='./docs.html'>Docs</a></nav><hr></header><main>
+<header id="title-block-header">
+<h1 class="title">design-doc — Theatre of the Mind</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#-theatre-of-the-mind---design-document"
+id="toc--theatre-of-the-mind---design-document">🎭 Theatre of the Mind -
+Design Document</a>
+<ul>
+<li><a href="#design-tenets" id="toc-design-tenets">Design
+Tenets</a></li>
+<li><a href="#vision" id="toc-vision">Vision</a></li>
+<li><a href="#architecture-overview"
+id="toc-architecture-overview">Architecture Overview</a></li>
+<li><a href="#adventure-content" id="toc-adventure-content">Adventure
+Content</a></li>
+<li><a href="#rulesets--flexibility"
+id="toc-rulesets--flexibility">Rulesets &amp; Flexibility</a></li>
+<li><a href="#persistence--player-interaction"
+id="toc-persistence--player-interaction">Persistence &amp; Player
+Interaction</a></li>
+<li><a href="#llm-usage--cost-strategy"
+id="toc-llm-usage--cost-strategy">LLM Usage &amp; Cost Strategy</a></li>
+<li><a href="#scaling-philosophy" id="toc-scaling-philosophy">Scaling
+Philosophy</a></li>
+<li><a href="#legal--content-strategy"
+id="toc-legal--content-strategy">Legal &amp; Content Strategy</a></li>
+<li><a href="#near-term-goal" id="toc-near-term-goal">Near-Term
+Goal</a></li>
+<li><a href="#summary" id="toc-summary">Summary</a></li>
+</ul></li>
+</ul>
+</nav>
+<section id="-theatre-of-the-mind---design-document" class="level1">
+<h1>🎭 Theatre of the Mind - Design Document</h1>
+<p><em>A text-based online game engine for exploring classic and remixed
+TTRPG adventures with interchangeable rulesets.</em></p>
+<hr />
+<section id="design-tenets" class="level2">
+<h2>Design Tenets</h2>
+<ul>
+<li><strong>Natural language first</strong> — players type as if
+speaking to a DM.</li>
+<li><strong>Ruleset modularity</strong> — adjudication logic is
+pluggable and swappable.</li>
+<li><strong>Content reskinnable</strong> — structure, lore, and stats
+are cleanly separated.</li>
+<li><strong>Deterministic rules</strong> — adjudication is reproducible
+and auditable, even if natural-language parsing isn’t.</li>
+<li><strong>Cost-aware LLM use</strong> — models are used lightly, with
+caching and templates to stay affordable.</li>
+<li><strong>Scalable foundations</strong> — clean separation keeps
+migration paths open (e.g., microservices).</li>
+</ul>
+<hr />
+</section>
+<section id="vision" class="level2">
+<h2>Vision</h2>
+<p>Theatre of the Mind is a multiplayer, largely text-driven online game
+where players interact with adventures in <strong>natural
+language</strong>, as though speaking to a Dungeon Master.</p>
+<ul>
+<li><strong>LLM-powered interpreter</strong> converts free text into
+structured actions.</li>
+<li><strong>Rules engine</strong> adjudicates those actions according to
+the currently active ruleset (e.g., B/X, PF2e, homebrew).</li>
+<li><strong>Adventure content</strong> defines modules like <em>B1: In
+Search of the Unknown</em>, which can be played faithfully, reskinned,
+or transplanted into new settings.</li>
+</ul>
+<p>This creates both:</p>
+<ul>
+<li><strong>Classic play</strong>: authentic adventures under their
+original ruleset.</li>
+<li><strong>Toolbox play</strong>: experimentation with “what if?”
+scenarios — new rulesets, settings, or remixed modules.</li>
+</ul>
+<hr />
+</section>
+<section id="architecture-overview" class="level2">
+<h2>Architecture Overview</h2>
+<p>Theatre of the Mind is layered to keep game logic portable and avoid
+lock-in:</p>
+<ul>
+<li><p><strong>Evennia (bootstrap layer)</strong></p>
+<ul>
+<li>Provides multiplayer connections (telnet/websocket), persistence,
+and account/session handling.</li>
+<li>Chosen to accelerate prototyping with a ready-made text game
+server.</li>
+<li>Treated as an <strong>adapter</strong>, not the core engine — it can
+be replaced later if scaling demands it.</li>
+</ul></li>
+<li><p><strong>Theatre Core (domain layer)</strong></p>
+<ul>
+<li>Independent Python package with:
+<ul>
+<li>IR schema and validation.</li>
+<li>Rules controller + rulepacks.</li>
+<li>Adventure content loader (structure, lore, stats).</li>
+<li>Event store + replay.</li>
+</ul></li>
+<li>Ensures rules and adventures remain portable beyond Evennia.</li>
+</ul></li>
+<li><p><strong>LLM Orchestrator</strong></p>
+<ul>
+<li>Converts natural language → IR (JSON).</li>
+<li>Runs as a separate process, making it easy to swap models or
+distribute later.</li>
+</ul></li>
+<li><p><strong>Rulepacks</strong></p>
+<ul>
+<li><code>bx/</code>, <code>becmi/</code>, <code>homebrew/</code> etc.
+implement the adjudication interface.</li>
+<li>Translate neutral challenges into ruleset-specific mechanics.</li>
+</ul></li>
+</ul>
+<hr />
+</section>
+<section id="adventure-content" class="level2">
+<h2>Adventure Content</h2>
+<p>Adventures are designed with <strong>three conceptual
+layers</strong>, kept distinct so they can be recombined:</p>
+<ul>
+<li><strong>Structure</strong> — the skeleton: maps, rooms, connections,
+triggers, and challenge bands (e.g., “easy check” vs “hard check”),
+without ruleset-specific numbers.</li>
+<li><strong>Lore</strong> — the words, names, and story flavor. Multiple
+variants can exist (e.g., original module text, paraphrased safe text,
+alternate settings).</li>
+<li><strong>Stats</strong> — the ruleset-specific numbers (monster stat
+blocks, trap DCs, treasure values), expressed per ruleset.</li>
+</ul>
+<p>This separation allows:</p>
+<ul>
+<li>Running the same adventure under multiple rulesets without
+duplication.</li>
+<li>Reskinning modules into different settings while keeping mechanics
+intact.</li>
+<li>Preserving authenticity (original lore + original stats) while
+enabling remix play (alternate lore + different ruleset).</li>
+</ul>
+<hr />
+</section>
+<section id="rulesets--flexibility" class="level2">
+<h2>Rulesets &amp; Flexibility</h2>
+<p>A core goal of <em>Theatre of the Mind</em> is to <strong>experience
+how rulesets shape play</strong>.</p>
+<ul>
+<li>Implementing different rulesets (e.g., B/X, 3.5e, PF2e) shows how
+mechanics evolved over time.</li>
+<li>Running a classic module in its original ruleset captures historical
+authenticity.</li>
+<li>Swapping in a modern ruleset reveals how later design choices change
+pacing, challenge, and narrative.</li>
+<li>Reskinning a module into a different setting shows how <strong>lore
+and mechanics interact</strong>.</li>
+</ul>
+<p>This isn’t about rigid “modes of play.” Instead, it’s a
+<strong>toolbox</strong>:</p>
+<ul>
+<li>Choose a module.</li>
+<li>Choose a ruleset.</li>
+<li>Choose a lore/setting skin.</li>
+<li>…and see how those choices transform the experience.</li>
+</ul>
+<hr />
+</section>
+<section id="persistence--player-interaction" class="level2">
+<h2>Persistence &amp; Player Interaction</h2>
+<p>The system supports:</p>
+<ul>
+<li><strong>Solo play</strong> (one player controlling multiple
+characters).</li>
+<li><strong>Small-party multiplayer.</strong></li>
+<li><strong>Optional DM presence</strong> (via reserved commands or
+narrative input).</li>
+</ul>
+<p>Adventures can run as <strong>per-party instances</strong>
+(replayable, fair), with optional future support for <strong>shared or
+persistent spaces</strong> (where multiple parties’ actions affect the
+same world).</p>
+<hr />
+</section>
+<section id="llm-usage--cost-strategy" class="level2">
+<h2>LLM Usage &amp; Cost Strategy</h2>
+<p>As a hobby project, LLM usage must remain <strong>affordable and
+efficient</strong>.</p>
+<ul>
+<li><p><strong>Interpretation only:</strong></p>
+<ul>
+<li>LLMs parse natural language into IR.</li>
+<li>Rules engine and templates handle adjudication and narration.</li>
+</ul></li>
+<li><p><strong>Lightweight models by default:</strong></p>
+<ul>
+<li>Smaller/cheaper models (or local ones) handle routine parsing.</li>
+<li>Larger models only for richer narrative, if needed.</li>
+</ul></li>
+<li><p><strong>Cache and reuse:</strong></p>
+<ul>
+<li>Store <code>(utterance → IR)</code> mappings to avoid repeated LLM
+calls.</li>
+<li>Template narration where possible.</li>
+</ul></li>
+<li><p><strong>Tight context windows:</strong></p>
+<ul>
+<li>Only relevant state is passed to the LLM.</li>
+<li>Retrieval supplies precise lore/stats instead of whole modules.</li>
+</ul></li>
+<li><p><strong>Predictable costs:</strong></p>
+<ul>
+<li>One action ≈ 200–300 tokens.</li>
+<li>Multi-hour sessions should cost only cents with small models.</li>
+<li>Token usage per session is logged for visibility.</li>
+</ul></li>
+</ul>
+<hr />
+</section>
+<section id="scaling-philosophy" class="level2">
+<h2>Scaling Philosophy</h2>
+<ul>
+<li><strong>Now:</strong> One Evennia server with adventure
+bundles.</li>
+<li><strong>Later:</strong> Keep <code>theatre_core</code> pure and
+portable, define JSON contracts, and design around stable IDs.</li>
+<li>This ensures migration to custom servers or microservices is
+possible without rewriting adventures or rules.</li>
+</ul>
+<hr />
+</section>
+<section id="legal--content-strategy" class="level2">
+<h2>Legal &amp; Content Strategy</h2>
+<ul>
+<li><strong>For private/testing:</strong> classic modules and rulesets
+may be used.</li>
+<li><strong>For public/shareable:</strong> provide paraphrased lore,
+open-content SRD mechanics, or original settings.</li>
+<li>Grey content is kept in isolated lore/stats files so it can be
+swapped out cleanly.</li>
+</ul>
+<hr />
+</section>
+<section id="near-term-goal" class="level2">
+<h2>Near-Term Goal</h2>
+<p>The first milestone is modest but foundational:</p>
+<ul>
+<li>Play through one module (<em>B1: In Search of the Unknown</em>)</li>
+<li>Using its original ruleset (B/X)</li>
+<li>With content converted into machine-readable form (structure + lore
++ stats).</li>
+</ul>
+<p>This validates the <strong>utterance → IR → adjudication →
+narration</strong> pipeline and proves that Evennia + Theatre Core can
+deliver a complete playable adventure loop.</p>
+<hr />
+</section>
+<section id="summary" class="level2">
+<h2>Summary</h2>
+<p>Theatre of the Mind is:</p>
+<ul>
+<li>A <strong>learning project</strong> and <strong>personal play
+space.</strong></li>
+<li>An <strong>engine/toolbox</strong> for experimenting with modules
+and rulesets.</li>
+<li>Built for both <strong>nostalgia</strong> (classic adventures) and
+<strong>experimentation</strong> (remixes, ruleset swaps).</li>
+<li>Designed to keep <strong>LLM usage affordable</strong> and rules
+deterministic.</li>
+<li>Architected so it can grow from “one server, one dungeon” to larger
+worlds without painful rewrites.</li>
+</ul>
+</section>
+</section>
+</main><hr><footer><small>© 2025 Theatre of the Mind</small></footer>
+</body>
+</html>
