@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# --------------------------------------------------------------------
+# NOTE ON ASSETS
+#
+# Image assets (e.g. scans, maps, illustrations) in `docs/private/b1/assets/`
+# are intentionally excluded from the internal archive. They are large,
+# non-essential for code review, and can be regenerated or stored outside git.
+#
+# If you need to package assets for distribution, remove or adjust the
+# `--exclude="b1/assets/**"` rule in the rsync command below.
+# --------------------------------------------------------------------
+
 MODE="${1:-public}"
 ROOT="$(git rev-parse --show-toplevel)"
 DIST="$ROOT/dist"
@@ -45,7 +56,7 @@ if [[ "$MODE" == "internal" ]]; then
 
   # 2) overlay private files (without VCS/junk)
   mkdir -p "$INTDIR/docs/private"
-  rsync -a --delete "${RSYNC_EXCLUDES[@]}" "$ROOT/private/" "$INTDIR/docs/private/"
+  rsync -a --delete "${RSYNC_EXCLUDES[@]}" --exclude="b1/assets/**" "$ROOT/private/" "$INTDIR/docs/private/"
 
   # 3) zip everything
   (cd "$INTDIR" && zip -r9 "$INTZIP" . >/dev/null)
