@@ -1,0 +1,9 @@
+[project]
+name = "theatre-of-the-mind"
+version = "0.1.0"
+description = "A text-based game engine for playing and remixing classic TTRPG adventures with modular rulesets."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "evennia>=5.0.1",
+]

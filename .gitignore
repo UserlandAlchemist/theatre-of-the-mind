@@ -1,15 +1,27 @@
+# -------------------------------------------------------------------
 # Python
+# -------------------------------------------------------------------
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
-.mypy_cache/
+*.so
+*.egg
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
 .pytest_cache/
 
-# Envs
+
+# -------------------------------------------------------------------
+# uv (package manager)
+# ------------------------------------------------------------------
+uv.lock.bak
 .venv/
 .env
 .env.*
+.python-version
 
 # OS/editor
 .DS_Store
@@ -18,3 +30,23 @@ Thumbs.db
 .idea/
 .vscode/
 *.kate-swp
+*.bak
+
+# -------------------------------------------------------------------
+# Evennia / Django runtime artifacts
+# -------------------------------------------------------------------
+
+# Local database
+evennia_server/server/evennia.db3
+evennia_server/server/evennia.db3-journal
+
+# Logs & pids
+evennia_server/server/logs/
+evennia_server/server/*.pid
+evennia_server/server/*.log
+
+# Static files collected at runtime
+evennia_server/web/static/
+
+# Bytecode in server tree
+evennia_server/**/*.pyc
