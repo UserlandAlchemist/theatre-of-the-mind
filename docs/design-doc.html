@@ -25,7 +25,7 @@
   <!-- marked.js (client-side Markdown renderer) -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    const README_URL = 'https://cdn.jsdelivr.net/gh/UserlandAlchemist/theatre-of-the-mind@main/design-doc.md';
+    const README_URL = 'https://cdn.jsdelivr.net/gh/UserlandAlchemist/theatre-of-the-mind@main/docs/design-doc.md';
     fetch(README_URL)
       .then(r => r.ok ? r.text() : Promise.reject(r.status))
       .then(md => { document.getElementById('content').innerHTML = marked.parse(md); })
