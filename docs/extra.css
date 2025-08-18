@@ -1,0 +1,57 @@
+/* Make the page use the available width */
+.container { max-width: none; width: 100%; }
+
+/* Keep some breathing room on the sides */
+.container { padding-left: 32px; padding-right: 32px; }
+
+/* Slimmer sidebar (the in-page ToC) */
+.bs-sidebar { width: 240px; }
+.bs-sidebar.affix { width: 240px; }
+
+/* Let the main column expand next to the sidebar on large screens */
+@media (min-width: 992px) {
+    /* Bootstrap's col-md-9/3 are percentage widths; override to fill leftover space */
+    .col-md-3 { width: 240px; }
+    .col-md-9 { width: calc(100% - 240px); }
+}
+
+/* clearer hierarchy in the right TOC */
+.bs-sidenav ul.nav       { margin-left: 8px; }
+.bs-sidenav ul.nav ul    { margin-left: 10px; font-size: 95%; }
+.bs-sidenav ul.nav ul ul { margin-left: 10px; font-size: 92%; }
+
+/* --- Bulletproof compact tables for Cinder (and Bootstrap-based themes) --- */
+.container .col-md-9 table,
+.content table,
+.page-content table,
+.bs-docs-section table,
+article table,
+.main table {
+    width: auto !important;          /* stop full-width stretch */
+    table-layout: auto !important;   /* natural column sizing */
+    display: inline-table !important;/* shrink to content, center with margin:auto */
+    margin: 1rem auto !important;
+    border-collapse: collapse;
+}
+
+.container .col-md-9 th,
+.container .col-md-9 td,
+.content th, .content td,
+.page-content th, .page-content td,
+.bs-docs-section th, .bs-docs-section td,
+article th, article td,
+.main th, .main td {
+    padding: 6px 10px;
+    vertical-align: top;
+}
+
+/* keep first column tight; let the second breathe */
+.container .col-md-9 td:first-child,
+.content td:first-child,
+.page-content td:first-child,
+.bs-docs-section td:first-child,
+article td:first-child,
+.main td:first-child {
+    white-space: nowrap;
+    width: 1%;
+}
