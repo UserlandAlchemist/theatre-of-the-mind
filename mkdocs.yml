@@ -2,7 +2,6 @@ site_name: Theatre of the Mind
 
 theme:
   name: cinder
-  custom_dir: custom_theme
 
 markdown_extensions:
   - admonition
