@@ -1,0 +1,14 @@
+title: OSE SRD
+nav:
+  - Characters: ose-srd-characters.md
+  - Classes: ose-classes
+  - Equipment & Services: ose-srd-equipment-services.md
+  - Adventures: ose-srd-adventures.md
+  - Running Adventures: ose-srd-running-adventures.md
+  - Magic: ose-srd-magic.md
+  - Cleric Spells: ose-cleric-spells
+  - Magic Spells: ose-magic-spells
+  - Monsters: ose-srd-monsters.md
+  - Monster Descriptions: ose-monster-descriptions.md
+  - Treasures: ose-srd-treasure.md
+  - "*"   # (optional) auto-include anything else at the end

@@ -12,3 +12,8 @@ dependencies = [
     "mkdocs-material>=9.6.17",
     "mkdocs-redirects>=1.2.2",
 ]
+
+[dependency-groups]
+dev = [
+    "mkdocs-awesome-nav>=3.1.2",
+]

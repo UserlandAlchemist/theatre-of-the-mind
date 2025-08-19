@@ -14,6 +14,7 @@ markdown_extensions:
 
 plugins:
   - search
+  - awesome-nav
   - redirects:
       redirect_maps:
         index.md: design-doc.md

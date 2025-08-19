@@ -1,0 +1,6 @@
+nav:
+  - design-doc.md
+  - dev-notes.md
+  - internal-archives.md
+  - OSE SRD: ose-basic-srd
+  - "*"          # auto-include anything else not listed
