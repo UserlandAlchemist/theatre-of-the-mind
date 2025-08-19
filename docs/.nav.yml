@@ -2,5 +2,7 @@ nav:
   - design-doc.md
   - dev-notes.md
   - internal-archives.md
-  - OSE SRD: ose-basic-srd
-  - "*"          # auto-include anything else not listed
+  - ⚔️ OSE SRD:
+      - ose-basic-srd
+  - 🔒 Private (Licensed/Copyrighted Material):
+      - "🛡️ Module B1 - In Search of the Unknown": private/b1/b1-clean.md

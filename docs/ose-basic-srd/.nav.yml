@@ -11,4 +11,3 @@ nav:
   - Monsters: ose-srd-monsters.md
   - Monster Descriptions: ose-monster-descriptions.md
   - Treasures: ose-srd-treasure.md
-  - "*"   # (optional) auto-include anything else at the end
