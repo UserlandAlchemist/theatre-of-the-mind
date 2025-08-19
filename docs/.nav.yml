@@ -5,4 +5,12 @@ nav:
   - ⚔️ OSE SRD:
       - ose-basic-srd
   - 🔒 Private (Licensed/Copyrighted Material):
-      - "🛡️ Module B1 - In Search of the Unknown": private/b1/b1-clean.md
+        - "🛡️ Module B1 - In Search of the Unknown":
+            - "📖 Front Matter": private/b1/01-b1-front.md
+            - "🎭 Introduction": private/b1/02-b1-introduction.md
+            - "🌄 Background": private/b1/03-b1-background.md
+            - "🏰 Caverns, Upper Level": private/b1/05-b1-caverns-upper.md
+            - "🕳️ Caverns, Lower Level": private/b1/04-b1-caverns-lower.md
+            - "🗝️ Keying the Dungeon": private/b1/06-b1-keying.md
+            - "👥 Character Lists": private/b1/07-b1-character-lists.md
+            - "📜 Player’s Background Sheet": private/b1/08-b1-players-background-sheet.md

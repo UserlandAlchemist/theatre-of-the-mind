@@ -174,7 +174,7 @@ If your character has no armour, their base AC is 9 [10].
 
 Your character begins play at 1st level with 0 XP.
 
-## #13. Name Character
+### 13. Name Character
 
 Finally, choose a name for your character. You are now ready for adventure!
 
