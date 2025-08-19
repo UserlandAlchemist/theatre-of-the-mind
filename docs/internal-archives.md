@@ -5,42 +5,33 @@ This project supports two bundles:
 - **Public**: safe to distribute; contains only tracked repo files.
 - **Internal**: includes a private overlay (`private/`), for research and AI-assisted work; *not for redistribution*.
 
-## Structure & Naming
+## Archive Process
 
-Internal bundles are named:
-
-```
-theatre-of-the-mind-internal-YYYYMMDD-HHMM-<gitshort>.zip
-```
-
-Inside the zip, private content is staged under:
-
-```
-docs/private/**
-# e.g., docs/private/b1/b1-clean.md
-```
+* Archives are produced using the `./scripts/make-archive.sh` script.
+* By default, archives are placed in `~/dist` (moved out of the project folder).
+* If no flag is supplied, the script defaults to creating an internal archive.
+* Each archive now includes a short git log of the last 10 commits in the root of the zip file.
 
 ## Building
 
 Use the script:
 
 ```
+./scripts/make-archive.sh
 ./scripts/make-archive.sh public
-./scripts/make-archive.sh internal
 ```
+
 
 Example outputs:
 
 ```
-dist/theatre-of-the-mind-public-20250817-1902-a1b2c3d.zip
-dist/theatre-of-the-mind-internal-20250817-1902-a1b2c3d.zip
+theatre-of-the-mind-public-20250817-1902-a1b2c3d.zip
+theatre-of-the-mind-internal-20250817-1902-a1b2c3d.zip
 ```
 
 Notes:
 
-- Each run wipes `dist/` and rebuilds.
-- The internal build overlays `private/` into `docs/private/` and excludes VCS junk (`.git`, `.gitignore`, `.gitattributes`, `.DS_Store`, `Thumbs.db`).
-- The staging directory is removed unless `KEEP_STAGING=1` is set.
+* archive_excludes.txt governs which files are excluded from builds.
 
 ## Safety
 
