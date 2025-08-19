@@ -9,6 +9,7 @@ with a location in the game world (like Characters, Rooms, Exits).
 """
 
 from evennia.objects.objects import DefaultObject
+from evennia.contrib.rpg.rpsystem import ContribRPObject
 
 
 class ObjectParent:
@@ -23,7 +24,7 @@ class ObjectParent:
     """
 
 
-class Object(ObjectParent, DefaultObject):
+class Object(ObjectParent, ContribRPObject, DefaultObject):
     """
     This is the root Object typeclass, representing all entities that
     have an actual presence in-game. DefaultObjects generally have a

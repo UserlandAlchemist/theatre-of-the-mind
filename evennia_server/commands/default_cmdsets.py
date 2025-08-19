@@ -18,6 +18,7 @@ from evennia import default_cmds
 from evennia.contrib.rpg import dice
 from evennia.contrib.game_systems.gendersub import SetGender
 from evennia.contrib.grid import extended_room
+from evennia.contrib.rpg.rpsystem import RPSystemCmdSet
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -36,9 +37,18 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+
+        # roll command from dice contrib
         self.add(dice.CmdDice())
+
+        # SetGender's gender command for gendered pronounds
         self.add(SetGender())
+
+        # ExtendedRoom’s look/@desc/detail/time/etc.
         self.add(extended_room.ExtendedRoomCmdSet)
+
+         # RPSystem emote/sdesc/recog/mask/say integration
+        self.add(RPSystemCmdSet())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """

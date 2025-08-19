@@ -304,7 +304,7 @@ wheels = [
 [[package]]
 name = "evennia"
 version = "5.0.1"
-source = { registry = "https://pypi.org/simple" }
+source = { editable = "../evennia-fork" }
 dependencies = [
     { name = "anything" },
     { name = "autobahn" },
@@ -327,10 +327,43 @@ dependencies = [
     { name = "tzdata" },
     { name = "uritemplate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b7/a1/a0468bf73f7ed1a5b175c59ea57d45bcbf355b22ae07c88c690e2e9b2ac0/evennia-5.0.1.tar.gz", hash = "sha256:3aad369fba4414f1327c329a7eb5bafe02af65b2cf4ed6dd2b820f4f0985556e", size = 2176902, upload-time = "2025-07-02T13:27:16.436Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e9/50/6fb6e523b56492586872c1554a6243d4e643062465a800b83be66e99949d/evennia-5.0.1-py3-none-any.whl", hash = "sha256:471d5259f089d2f32e09cd9f383390c076093b9e2a6f661e0cd91eed59d67bcf", size = 2543593, upload-time = "2025-07-02T13:27:14.099Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "anything", specifier = "==0.2.1" },
+    { name = "autobahn", specifier = ">=20.7.1,<21.0.0" },
+    { name = "bcrypt", marker = "extra == 'extra'", specifier = ">=3.1.7" },
+    { name = "black", specifier = ">=22.6" },
+    { name = "boto3", marker = "extra == 'extra'", specifier = ">=1.4.4" },
+    { name = "botocore", marker = "extra == 'extra'", specifier = ">=1.15" },
+    { name = "cryptography", marker = "extra == 'extra'", specifier = ">=2.8" },
+    { name = "django", specifier = ">=5.2,<5.3" },
+    { name = "django-extensions", marker = "extra == 'extra'", specifier = ">=3.1.0" },
+    { name = "django-filter", specifier = "==2.4" },
+    { name = "django-sekizai", specifier = "==2.0.0" },
+    { name = "djangorestframework", specifier = ">=3.14,<3.15" },
+    { name = "gitpython", marker = "extra == 'extra'", specifier = ">=3.1.27" },
+    { name = "inflect", specifier = ">=5.2.0" },
+    { name = "ipython", marker = "extra == 'extra'", specifier = ">=7.19.0" },
+    { name = "isort", specifier = ">=5.10" },
+    { name = "jupyter", marker = "extra == 'extra'", specifier = ">=1.0.0" },
+    { name = "legacy-cgi", marker = "python_full_version >= '3.13'" },
+    { name = "lunr", specifier = "==0.7.0.post1" },
+    { name = "mock", specifier = ">=4.0.3" },
+    { name = "model-mommy", specifier = ">=2.0" },
+    { name = "parameterized", specifier = "==0.9.0" },
+    { name = "pyasn1", marker = "extra == 'extra'", specifier = ">=0.4.8" },
+    { name = "pyopenssl", marker = "extra == 'extra'", specifier = ">=19.1" },
+    { name = "pytz", specifier = ">=2022.6" },
+    { name = "pyyaml", specifier = ">=6.0" },
+    { name = "scipy", marker = "extra == 'extra'", specifier = "==1.15.1" },
+    { name = "service-identity", marker = "extra == 'extra'", specifier = ">=18.1.0" },
+    { name = "simpleeval", specifier = "<=1.0" },
+    { name = "twisted", specifier = ">=24.11.0,<25" },
+    { name = "tzdata", specifier = ">=2022.6" },
+    { name = "uritemplate", specifier = "==4.1.1" },
 ]
+provides-extras = ["extra"]
 
 [[package]]
 name = "ghp-import"
@@ -878,7 +911,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "evennia", specifier = ">=5.0.1" },
+    { name = "evennia", editable = "../evennia-fork" },
     { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "mkdocs-cinder", specifier = ">=1.2.0" },
     { name = "mkdocs-exclude", specifier = ">=1.0.2" },

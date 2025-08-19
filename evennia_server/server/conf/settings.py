@@ -31,6 +31,9 @@ from evennia.settings_default import *
 # Evennia base server config
 ######################################################################
 
+# Debug mode
+DEBUG = True
+
 # Core identity
 SERVERNAME = "Theatre of the Mind"
 # Short one-sentence blurb describing your game. Shown under the title
@@ -46,6 +49,25 @@ TELNET_ENABLED = False
 ######################################################################
 # Evennia pluggable modules
 ######################################################################
+
+# On a multi-match when search objects or commands, the user has the
+# ability to search again with an index marker that differentiates
+# the results. If multiple "box" objects
+# are found, they can by default be separated as 1-box, 2-box. Below you
+# can change the regular expression used. The regex must have one
+# have two capturing groups (?P<number>...) and (?P<name>...) - the default
+# parser expects this. It should also involve a number starting from 1.
+# When changing this you must also update SEARCH_MULTIMATCH_TEMPLATE
+# to properly describe the syntax.
+SEARCH_MULTIMATCH_REGEX = r"(?P<number>[0-9]+)-(?P<name>[^-]*)(?P<args>.*)"
+# To display multimatch errors in various listings we must display
+# the syntax in a way that matches what SEARCH_MULTIMATCH_REGEX understand.
+# The template will be populated with data and expects the following markup:
+# {number} - the order of the multimatch, starting from 1; {name} - the
+# name (key) of the multimatched entity; {aliases} - eventual
+# aliases for the entity; {info} - extra info like #dbrefs for staff. Don't
+# forget a line break if you want one match per line.
+SEARCH_MULTIMATCH_TEMPLATE = " {number}-{name}{aliases}{info}\n"
 
 # Use the contrib’s connection-screen texts to drive the menu-based login.
 # (You can later point this to your own module if you want a custom banner.)
