@@ -20,4 +20,4 @@ The first milestone is to play through *B1: In Search of the Unknown* under its 
 See [docs/design-doc.md](docs/design-doc.md) for detailed design notes, architecture, and roadmap.
 
 ## Open Game Licensed Content
-“This project uses game mechanics compatible with Old-School Essentials. See LICENSE-OGL.md for details.”
+This project uses game mechanics compatible with Old-School Essentials. See LICENSE-OGL.md for details.
