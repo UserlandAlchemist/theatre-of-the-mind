@@ -39,6 +39,9 @@ COMMON_EXCLUDES=(
   "evennia-server/server/evennia.db3-wal"
   "evennia-server/server/evennia.db3-shm"
   "evennia-server/server/logs/"
+
+  # Static files collected at runtime (optional to include with a flag)
+  "evennia-server/web/static/"
 )
 
 # Extra excludes that apply to *public* archives.
@@ -52,31 +55,52 @@ PUBLIC_ONLY_EXCLUDES=(
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") [--internal|--public]
+Usage: $(basename "$0") [--internal|--public] [--with-static]
 
 Creates a timestamped zip archive of the repository contents:
   - Output location: ${DIST_DIR}
   - Default mode: --internal
   - Adds git-log.txt (last 10 commits) at the root of the zip.
+  - By default excludes runtime DB, logs, and collected static files.
+
+Options:
+  --internal       Create an internal archive (default).
+  --public         Create a public archive (also excludes docs/private and secrets).
+  --with-static    Include collected static files (evennia-server/web/static).
 
 Examples:
-  $(basename "$0")             # internal by default
-  $(basename "$0") --public    # public archive (excludes docs/private, secrets)
+  $(basename "$0")                 # internal by default, no static
+  $(basename "$0") --public        # public archive
+  $(basename "$0") --with-static   # internal archive including static
+  $(basename "$0") --public --with-static
 EOF
 }
 
 MODE="internal"
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  usage; exit 0
-elif [[ "${1:-}" == "--public" ]]; then
-  MODE="public"
-elif [[ "${1:-}" == "--internal" || -z "${1:-}" ]]; then
-  MODE="internal"
-elif [[ -n "${1:-}" ]]; then
-  echo "Unknown option: $1" >&2
-  usage
-  exit 2
-fi
+INCLUDE_STATIC=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --help|-h)
+      usage; exit 0
+      ;;
+    --public)
+      MODE="public"
+      ;;
+    --internal)
+      MODE="internal"
+      ;;
+    --with-static)
+      INCLUDE_STATIC=true
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage
+      exit 2
+      ;;
+  esac
+  shift
+done
 
 # Resolve repo root and sanity checks
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
@@ -101,8 +125,13 @@ trap cleanup EXIT
 EXCLUDE_FILE="${STAGE_DIR}/.archive_excludes.txt"
 : > "${EXCLUDE_FILE}"
 for pat in "${COMMON_EXCLUDES[@]}"; do
+  # Skip static files if --with-static flag was given
+  if [[ "$INCLUDE_STATIC" == true && "$pat" == "evennia-server/web/static/" ]]; then
+    continue
+  fi
   printf "%s\n" "${pat}" >> "${EXCLUDE_FILE}"
 done
+
 if [[ "${MODE}" == "public" ]]; then
   for pat in "${PUBLIC_ONLY_EXCLUDES[@]}"; do
     printf "%s\n" "${pat}" >> "${EXCLUDE_FILE}"
