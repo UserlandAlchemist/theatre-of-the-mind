@@ -9,11 +9,12 @@ creation commands.
 """
 
 from evennia.objects.objects import DefaultCharacter
+from evennia.contrib.game_systems.gendersub import GenderCharacter
 
 from .objects import ObjectParent
 
 
-class Character(ObjectParent, DefaultCharacter):
+class Character(ObjectParent, GenderCharacter):
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.

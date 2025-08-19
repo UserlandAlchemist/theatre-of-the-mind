@@ -16,6 +16,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 from evennia.contrib.rpg import dice
+from evennia.contrib.game_systems.gendersub import SetGender
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -35,7 +36,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # any commands you add below will overload the default ones.
         #
         self.add(dice.CmdDice())
-
+        self.add(SetGender())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
