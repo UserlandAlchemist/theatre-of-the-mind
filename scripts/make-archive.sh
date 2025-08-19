@@ -42,6 +42,10 @@ COMMON_EXCLUDES=(
 
   # Static files collected at runtime (optional to include with a flag)
   "evennia-server/web/static/"
+
+  "docs/**/assets/"
+  "docs/private/**/assets/"
+  "private/**/assets/"
 )
 
 # Extra excludes that apply to *public* archives.
@@ -67,6 +71,7 @@ Options:
   --internal       Create an internal archive (default).
   --public         Create a public archive (also excludes docs/private and secrets).
   --with-static    Include collected static files (evennia-server/web/static).
+  --with-assets   Include all 'assets/' directories under docs/ and docs/private/
 
 Examples:
   $(basename "$0")                 # internal by default, no static
@@ -78,6 +83,7 @@ EOF
 
 MODE="internal"
 INCLUDE_STATIC=false
+INCLUDE_ASSETS=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -92,6 +98,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     --with-static)
       INCLUDE_STATIC=true
+      ;;
+      --with-assets)
+      INCLUDE_ASSETS=true
       ;;
     *)
       echo "Unknown option: $1" >&2
@@ -129,6 +138,11 @@ for pat in "${COMMON_EXCLUDES[@]}"; do
   if [[ "$INCLUDE_STATIC" == true && "$pat" == "evennia-server/web/static/" ]]; then
     continue
   fi
+  if [[ "$INCLUDE_ASSETS" == true && "$pat" == "docs/**/assets/" ]] || \
+   [[ "$INCLUDE_ASSETS" == true && "$pat" == "docs/private/**/assets/" ]] || \
+   [[ "$INCLUDE_ASSETS" == true && "$pat" == "private/**/assets/" ]]; then
+  continue
+fi
   printf "%s\n" "${pat}" >> "${EXCLUDE_FILE}"
 done
 
