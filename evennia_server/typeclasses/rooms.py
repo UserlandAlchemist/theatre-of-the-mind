@@ -4,13 +4,12 @@ Room
 Rooms are simple containers that has no location of their own.
 
 """
-
-from evennia.objects.objects import DefaultRoom
+from evennia.contrib.grid.extended_room import ExtendedRoom
 
 from .objects import ObjectParent
 
 
-class Room(ObjectParent, DefaultRoom):
+class Room(ObjectParent, ExtendedRoom):
     """
     Rooms are like any Object, except their location is None
     (which is default). They also use basetype_setup() to
