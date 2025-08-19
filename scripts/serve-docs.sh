@@ -36,8 +36,24 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --private) MODE="private"; shift ;;
     --public)  MODE="public";  shift ;;
-    --host)    HOST="${2:-}"; shift 2 ;;
-    --port)    PORT="${2:-}"; shift 2 ;;
+    --host)
+      if [[ $# -lt 2 || -z "$2" ]]; then
+        echo "Error: --host requires an argument" >&2
+        usage
+        exit 2
+      fi
+      HOST="$2"
+      shift 2
+      ;;
+    --port)
+      if [[ $# -lt 2 || -z "$2" ]]; then
+        echo "Error: --port requires an argument" >&2
+        usage
+        exit 2
+      fi
+      PORT="$2"
+      shift 2
+      ;;
     --strict)  STRICT=1; shift ;;
     --browse)  BROWSE=1; shift ;;
     -h|--help) usage; exit 0 ;;
