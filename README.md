@@ -11,7 +11,6 @@ Your words are parsed into structured actions, adjudicated by a modular rules en
 - Adventure remixing — structure, lore, and stats are cleanly separated
 - Built on [Evennia](https://www.evennia.com/) for multiplayer and persistence
 
-
 ## Status
 Early development.
 The first milestone is to play through *B1: In Search of the Unknown* under its original B/X ruleset, with content converted into machine-readable form.

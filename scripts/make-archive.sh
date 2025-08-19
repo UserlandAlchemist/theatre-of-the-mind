@@ -33,11 +33,12 @@ COMMON_EXCLUDES=(
   ".vscode/"
   "dist/"                    # in case one exists in-repo
   "build/"
-  # Never archive the live Evennia SQLite database (security/bloat risk)
-  "evennia_server/server/evennia.db3"
-  "evennia_server/server/evennia.db3-journal"
-  "evennia_server/server/evennia.db3-wal"
-  "evennia_server/server/evennia.db3-shm"
+  # Never archive the db or logs (security/bloat risk)
+  "evennia-server/server/evennia.db3"
+  "evennia-server/server/evennia.db3-journal"
+  "evennia-server/server/evennia.db3-wal"
+  "evennia-server/server/evennia.db3-shm"
+  "evennia-server/server/logs/"
 )
 
 # Extra excludes that apply to *public* archives.
