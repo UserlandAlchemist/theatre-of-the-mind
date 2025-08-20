@@ -45,8 +45,8 @@ evennia-server/server/logs/
 evennia-server/server/*.pid
 evennia-server/server/*.log
 
-# Static files collected at runtime
-evennia-server/web/static/
+# Ignore collected static output (generated)
+evennia-server/server/.static/
 
 # Bytecode in server tree
 evennia-server/**/*.pyc
