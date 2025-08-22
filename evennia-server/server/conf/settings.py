@@ -31,9 +31,6 @@ from evennia.settings_default import *
 # Evennia base server config
 ######################################################################
 
-# Debug mode
-DEBUG = True
-
 # Core identity
 SERVERNAME = "Theatre of the Mind"
 # Short one-sentence blurb describing your game. Shown under the title
