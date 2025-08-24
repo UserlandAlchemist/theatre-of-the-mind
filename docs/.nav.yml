@@ -2,6 +2,9 @@ nav:
   - design-doc.md
   - dev-notes.md
   - internal-archives.md
+  - 📂 Adventure Format:
+      - "📑 Module Data Specification": adventure-format/adventure-module-spec.md
+      - "🚀 Author Quickstart": adventure-format/adventure-module-quickstart.md
   - ⚔️ OSE SRD:
       - ose-basic-srd
   - 🔒 Private (Licensed/Copyrighted Material):
@@ -14,3 +17,4 @@ nav:
             - "🗝️ Keying the Dungeon": private/b1/06-b1-keying.md
             - "👥 Character Lists": private/b1/07-b1-character-lists.md
             - "📜 Player’s Background Sheet": private/b1/08-b1-players-background-sheet.md
+        - "🌅 The Beacon at Enon Tor": private/imagine-magazine/imagine-01-beacon-at-enon-tor.md
