@@ -19,7 +19,6 @@ These layers are kept separate so they can be recombined at runtime. For example
 - **Lore** = names and text (boxed text, GM notes) for anything declared in structure.
 - **Stats** = system mechanics for actors/items/traps and any rules effects; may map an item to a mechanical archetype (e.g., “meat cleaver counts as hand axe”).
 
-
 ---
 
 ## Directory Layout
@@ -105,6 +104,20 @@ Declares the adventure ID, title, default lore/stats packs, and map scale.
 **Field notes:**
 
 * `author`: The module’s credited author(s).  
+* **Canonical ordering requirement** (normative): authors MUST keep keys in deterministic order to ensure stable diffs and reproducible builds.
+  - In `structure/<region>.json`, entities are sorted by ID (e.g., `g1`, `g2`, …), then by `structure.type`.
+  - Within a `structure.room.exits` array, exits are sorted by wall order `north, east, south, west, up, down`, then by `offset_squares` (ascending).
+  - In `lore/<variant>/*.json` and `stats/<ruleset>/*.json`, object keys are serialized in lexical order.
+  The loader may re-order on import; authors should still follow this rule.
+* **ID & key recipe** (normative):
+  - Region prefixes: `g` (ground), `t` (tower), `c` (cellar).
+  - Rooms use the printed map numbers: `g1`, `g2`, …; `t6–t9`, `c10–c13`, etc.
+  - Features: `feature.<noun>.<room-id>.<index>` (e.g., `feature.bench.g1.1`).
+  - Items: `item.<noun>.<room-id>.<index>`.
+  - Encounters: `enc.<room-id>.<slug>` (e.g., `enc.g3.bugbear-guards`).
+  - Lore keys are type-prefixed mirrors, e.g., `room.g1`, `actor.bugbear-guard`.
+  - Stats keys mirror lore keys; types may be added for clarity, e.g., `trap.loose-stair`.
+* **Empty keyed rooms** (normative): if a space is keyed on the map, it MUST be represented as a `room` entity even if initially empty of encounters or items.
 * `source`: Details about the original publication (title, publisher, year, and page range).  
   * Use this to preserve bibliographic info, not as a license statement.  
 * `recommended_party_composition`: Structured guidance on what mix of roles is expected.  
@@ -155,7 +168,6 @@ Example room:
 }
 ```
 
-
 ### 📐 Geometry & Positioning
 
 Rooms are defined relative to their own **local grid**, with the **south-west (SW) corner as origin (0,0)**.  
@@ -192,13 +204,20 @@ Any entity may declare a position on its room grid:
 "position": { "mode": "wall", "wall": "north", "offset_squares": 1 }
 ```
 
-Loader rule: wall mode must be converted internally to canonical grid form.
+Loader rule: wall mode must be converted internally to canonical grid form.  
+**Exit placement rules (normative)**
+
+* For rectangles, `offset_squares` counts from the **western corner** of the named wall.
+* An exit is valid iff all edge cells it occupies are on the **perimeter** and **contiguous**.
+* `width_squares` defaults to `1` if omitted.
+* Vertical exits (`up`/`down`) may omit `x,y`. If provided, they must lie on the footprint but **need not** touch perimeter.
+* Wall mode MUST NOT be used on irregular rooms; use explicit `grid` placement.
 
 ---
 
 ### Structural entity subtypes
 
-- `type: "feature"` → `subtype: bed|table|bench|shelf|fireplace|tapestry|light`
+- `type: "feature"` → `subtype: bed|table|bench|shelf|fireplace|tapestry|light|altar|desk|chest`
 - `type: "item"` → movable object, no mechanics here.
 - `type: "encounter"` → groups actors and sets an initial situation.
 
@@ -226,11 +245,27 @@ Example encounter:
 - `state` keys allowed: `locked`, `hidden`, `lit`, `filled`.
 - `parent_id` links to a containing/covering feature (e.g., under a bed).
 - Numerical DCs/values are stats-only.
+- **Containment rules (normative):**
+  - `parent_id` MUST reference an entity **in the same room**.
+  - `container.contains` IDs MUST resolve within the same adventure.
+  - Cycles across `parent_id` / `container.contains` are **invalid**.
+
+### Room attributes (structure-only)
+
+Rooms may include structure flags that aid rules and rendering without adding lore/mechanics:
+
+```json
+"room_attrs": { "floor_index": 0, "exterior": false }
+```
+
+* `floor_index` orders stacked floors (e.g., tower levels), counted from lowest = 0.
+* `exterior` = `true` for open-air spaces (e.g., beacon top).
 
 ### Light sources
 
 - `feature: light` with `state.lit`.  
 - Optional `overlay` of subtype `light` for ambient room light.
+
 ### 3. `lore/<variant>/<region>.json`
 
 Maps `lore_key` → textual descriptions.  
@@ -269,7 +304,6 @@ Stats may also map item IDs to mechanical archetypes:
 ```
 
 Structure must never include `counts_as`.
-
 
 ---
 
@@ -311,49 +345,179 @@ When an adventure is loaded:
 * Vertical exits (`up`/`down`) don’t require `x,y`, but may specify them if useful.  
 * Multi-square exits must use `width_squares`.  
 
-
-
 ### Position & containment
 * `position` may be present on any entity. If present, it must be inside the room footprint.
 * `parent_id` targets must exist in the same room unless loader allows cross-room references.
 * `container.contains` IDs must exist and resolve within the adventure.
 * Allowed structural `state` keys: `locked`, `hidden`, `lit`, `filled`.
+
 ### Lore/Stats
 * All `lore_key` exist in chosen lore pack.  
 * All `stats_key` exist in chosen stats pack (for actors/items).  
 
 ---
 
+## Authoring Guidance for Irregular Rooms (normative)
 
+When a printed room is irregular:
 
-### Worked example
+1. Choose the minimal bounding `width × length`.
+2. Provide a binary `footprint` array with `1` = traversable square, `0` = void.
+3. Place exits only where a `1` cell touches the room exterior.
+4. Do not use wall mode; specify exit positions with exact `grid` coordinates.
+
+This ensures consistent geometry across tools and prevents ambiguous “inset” doors.
+
+---
+
+## Vocab & Enums (normative)
+
+**structure.type**
+- `room`, `exit`, `feature`, `item`, `encounter`, `overlay`
+
+**exit.subtype**
+- `door`, `secret-door`, `portcullis`, `stairs`, `ladder`, `trapdoor`, `tunnel`
+
+**feature.subtype**
+- `bed`, `table`, `bench`, `shelf`, `fireplace`, `tapestry`, `light`, `altar`, `desk`, `chest`
+
+**overlay.subtype**
+- `light`, `fog`, `sound`, `scent`
+
+**position.facing**
+- `north`, `east`, `south`, `west`
+
+---
+
+## Loader Canonicalization (normative)
+
+On import, the loader MUST:
+1. Convert all wall-mode positions to explicit grid positions.
+2. Enforce ordering rules (entities, exits, map/object keys).
+3. Emit consistent serialization (no `null`; absent fields are omitted).
+
+---
+
+## Lint Codes
+
+**Errors**
+- `E001` duplicate id
+- `E020` exit not on perimeter (rectangles)
+- `E021` wall mode used on irregular room
+- `E031` vertical target missing / invalid
+- `E041` containment cycle detected
+- `E051` invalid footprint dimensions
+
+**Warnings**
+- `W101` missing `lore_key`
+- `W102` missing `stats_key`
+- `W111` non-canonical ordering fixed by loader
+
+---
+
+## JSON Schemas (abridged, normative)
+
+> These schemas are machine-readable constraints the linter enforces. Full files may live under `docs/adventure-format/schema/`.
 
 ```json
-[
-  { "id":"g2", "structure":{
-      "type":"room","shape":"rectangle","grid":{"width":3,"length":3},
-      "exits":[
-        { "to":"g1","type":"exit","subtype":"door",
-          "position":{"mode":"wall","wall":"west","offset_squares":1} }
-      ]
-  }},
-  { "id":"feature.fireplace", "structure":{
-      "type":"feature","subtype":"fireplace",
-      "position":{"mode":"grid","x":2,"y":2,"facing":"east"}
-  }},
-  { "id":"feature.bench", "structure":{
-      "type":"feature","subtype":"bench",
-      "position":{"mode":"grid","x":2,"y":2}
-  }},
-  { "id":"item.morris-set", "structure":{
-      "type":"item","position":{"mode":"grid","x":1,"y":1}
-  }},
-  { "id":"enc.orc-pair", "structure":{
-      "type":"encounter","actors":["actor.orc-a","actor.orc-b"],
-      "initial_behavior":"distracted-arguing"
-  }}
-]
+{
+  "$id": "structure.entity.json",
+  "type": "object",
+  "required": ["id", "structure"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "lore_key": { "type": "string" },
+    "stats_key": { "type": "string" },
+    "structure": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["room","exit","feature","item","encounter","overlay"] },
+        "subtype": { "type": "string" },
+        "shape": { "enum": ["rectangle","irregular"] },
+        "grid": {
+          "type": "object",
+          "required": ["width","length"],
+          "additionalProperties": false,
+          "properties": {
+            "width": { "type": "integer", "minimum": 1 },
+            "length": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 },
+            "footprint": {
+              "type": "array",
+              "items": { "type": "array", "items": { "enum": [0,1] } }
+            }
+          }
+        },
+        "room_attrs": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "floor_index": { "type": "integer" },
+            "exterior": { "type": "boolean" }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/exit" }
+        },
+        "position": { "$ref": "#/$defs/position" },
+        "state": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "locked": { "type": "boolean" },
+            "hidden": { "type": "boolean" },
+            "lit": { "type": "boolean" },
+            "filled": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["grid","wall"] },
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "facing": { "enum": ["north","east","south","west"] },
+        "wall": { "enum": ["north","east","south","west","up","down"] },
+        "offset_squares": { "type": "integer", "minimum": 0 },
+        "width_squares": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["mode"]
+    },
+    "exit": {
+      "type": "object",
+      "required": ["to","type","subtype"],
+      "additionalProperties": false,
+      "properties": {
+        "to": { "type": "string" },
+        "type": { "const": "exit" },
+        "subtype": {
+          "enum": ["door","secret-door","portcullis","stairs","ladder","trapdoor","tunnel"]
+        },
+        "position": { "$ref": "#/$defs/position" },
+        "state": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "locked": { "type": "boolean" },
+            "hidden": { "type": "boolean" }
+          }
+        },
+        "width_squares": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
 ```
+
 ## Advantages of Layering
 
 * **Reusability**: one structure supports multiple lore or stats overlays.  
@@ -364,4 +528,4 @@ When an adventure is loaded:
 ---
 
 ✅ With this convention, *The Beacon at Enon Tor* can be encoded in ~3 region files, with lore and stats layered on top.  
-✅ Larger adventures (like *B1*) can split into many region files without the JSON ever becoming unwieldy.  
+✅ Larger adventures (like *B1*) can split into many region files without the JSON ever becoming unwieldy.
