@@ -8,6 +8,18 @@ Adventures in *Theatre of the Mind* are encoded in JSON using three separate lay
 
 These layers are kept separate so they can be recombined at runtime. For example, the *Beacon at Enon Tor* structure can be run with canonical lore + OSE stats, or with sci-fi lore + 2e stats, without modifying the base files.
 
+## Layer responsibilities (normative)
+
+- **Structure** = geometry and object graph only. It declares:
+  - spaces (rooms/corridors), connections (exits), and relative placement;
+  - durable features/furniture, containers, light sources;
+  - minimal state flags that change access or perception (`locked`, `hidden`, `lit`);
+  - grouping relationships (e.g., encounter contains actors).
+  - **Structure never encodes numeric mechanics, prices, XP, or descriptive prose.**
+- **Lore** = names and text (boxed text, GM notes) for anything declared in structure.
+- **Stats** = system mechanics for actors/items/traps and any rules effects; may map an item to a mechanical archetype (e.g., “meat cleaver counts as hand axe”).
+
+
 ---
 
 ## Directory Layout
@@ -108,7 +120,9 @@ Declares the adventure ID, title, default lore/stats packs, and map scale.
 * A list of structural entities: rooms, corridors, stairs, actors, items, quests.  
 * Each entry contains only geometry, abstract properties, and references to lore/stats keys.  
 * Every entity must declare a `type`.  
-* Optional `subtype` refines the entity (e.g. `type=exit`, `subtype=door`).  
+* Optional `subtype` refines the entity (e.g. `type=exit`, `subtype=door`; `type=feature`, `subtype=bed`).  
+* Any entity may carry a `position` field.  
+* Minimal `state` flags are allowed (`locked`, `hidden`, `lit`, `filled`).  
 * If `lore_key` or `stats_key` is omitted, the entity has no attached lore/stats.
 
 Example room:
@@ -141,110 +155,82 @@ Example room:
 }
 ```
 
-### 📐 Room Geometry & Exits
+
+### 📐 Geometry & Positioning
 
 Rooms are defined relative to their own **local grid**, with the **south-west (SW) corner as origin (0,0)**.  
 No absolute world coordinates are used — geometry is always local to the room.
 
-#### Geometry
-
-* **Rectangular rooms**
+**Rectangular rooms**
 
 ```json
-{
-  "grid": {
-    "width": 3,
-    "length": 2,
-    "height": 1
-  }
-}
+{ "grid": { "width": 3, "length": 2, "height": 1 } }
 ```
 
-* **Irregular footprints**  
-Add an optional `footprint` mask if the room isn’t a clean rectangle:  
+**Irregular footprints**
 
 ```json
-{
-  "grid": {
-    "width": 3,
-    "length": 3,
-    "footprint": [
-      [1,1,1],
-      [1,0,0],
-      [1,1,1]
-    ]
-  }
-}
+{ "grid": { "width": 3, "length": 3,
+  "footprint": [
+    [1,1,1],
+    [1,0,0],
+    [1,1,1]
+  ] } }
 ```
 
-#### 📐 Exit Positioning
+**Positioning (universal)**
 
-Every exit links one room to another and must specify where it sits on the local grid.  
-
-There are **two positioning modes**:
-
-##### 1. Grid Mode (canonical, works everywhere)
+Any entity may declare a position on its room grid:
 
 ```json
-{
-  "to": "antechamber",
-  "type": "exit",
-  "subtype": "door",
-  "position": {
-    "mode": "grid",
-    "x": 2,
-    "y": 0,
-    "facing": "north"
-  }
-}
+"position": { "mode": "grid", "x": 2, "y": 1, "facing": "north" }
 ```
 
-##### 2. Wall Mode (shorthand for rectangles only)
-
-```json
-{
-  "to": "antechamber",
-  "type": "exit",
-  "subtype": "door",
-  "position": {
-    "mode": "wall",
-    "wall": "north",
-    "offset_squares": 1,
-    "width_squares": 2
-  }
-}
-```
-
-**Loader rule:** Wall mode must be internally converted to the equivalent `grid` form. Facing is implied by wall mode (north wall → facing north, etc.).
-
-##### Examples
-
-###### Door on north wall, second square from west corner
+**Wall shorthand (rectangles only)**
 
 ```json
 "position": { "mode": "wall", "wall": "north", "offset_squares": 1 }
 ```
 
-→ canonical equivalent:
+Loader rule: wall mode must be converted internally to canonical grid form.
+
+---
+
+### Structural entity subtypes
+
+- `type: "feature"` → `subtype: bed|table|bench|shelf|fireplace|tapestry|light`
+- `type: "item"` → movable object, no mechanics here.
+- `type: "encounter"` → groups actors and sets an initial situation.
+
+Example encounter:
 
 ```json
-"position": { "mode": "grid", "x": 1, "y": 2, "facing": "north" }
+{ "id":"enc.orc-pair", "structure":{
+    "type":"encounter",
+    "actors":["actor.orc-a","actor.orc-b"],
+    "initial_behavior":"distracted-arguing"
+}}
 ```
 
-###### Wide tunnel mouth in cavern
+### Containers & state
 
 ```json
-"position": { "mode": "grid", "x": 18, "y": 6, "facing": "east" },
-"width_squares": 3
+{ "id":"item.iron-box", "structure":{
+    "type":"item", "subtype":"container",
+    "parent_id":"feature.bed",
+    "state": { "hidden":true, "locked":true },
+    "container": { "contains":["item.silver-dagger","coin.gp.57"] }
+}}
 ```
 
-###### Vertical stairs using grid mode
+- `state` keys allowed: `locked`, `hidden`, `lit`, `filled`.
+- `parent_id` links to a containing/covering feature (e.g., under a bed).
+- Numerical DCs/values are stats-only.
 
-```json
-{ "to": "tower", "type": "exit", "subtype": "stairs",
-  "position": { "mode": "grid", "x": 1, "y": 2, "facing": "up" } }
-```
+### Light sources
 
+- `feature: light` with `state.lit`.  
+- Optional `overlay` of subtype `light` for ambient room light.
 ### 3. `lore/<variant>/<region>.json`
 
 Maps `lore_key` → textual descriptions.  
@@ -275,6 +261,15 @@ Split into files (actors, items, traps) for easier editing.
   }
 }
 ```
+
+Stats may also map item IDs to mechanical archetypes:
+
+```json
+{ "item.meat-cleaver": { "counts_as": "weapon.hand-axe" } }
+```
+
+Structure must never include `counts_as`.
+
 
 ---
 
@@ -316,12 +311,49 @@ When an adventure is loaded:
 * Vertical exits (`up`/`down`) don’t require `x,y`, but may specify them if useful.  
 * Multi-square exits must use `width_squares`.  
 
+
+
+### Position & containment
+* `position` may be present on any entity. If present, it must be inside the room footprint.
+* `parent_id` targets must exist in the same room unless loader allows cross-room references.
+* `container.contains` IDs must exist and resolve within the adventure.
+* Allowed structural `state` keys: `locked`, `hidden`, `lit`, `filled`.
 ### Lore/Stats
 * All `lore_key` exist in chosen lore pack.  
 * All `stats_key` exist in chosen stats pack (for actors/items).  
 
 ---
 
+
+
+### Worked example
+
+```json
+[
+  { "id":"g2", "structure":{
+      "type":"room","shape":"rectangle","grid":{"width":3,"length":3},
+      "exits":[
+        { "to":"g1","type":"exit","subtype":"door",
+          "position":{"mode":"wall","wall":"west","offset_squares":1} }
+      ]
+  }},
+  { "id":"feature.fireplace", "structure":{
+      "type":"feature","subtype":"fireplace",
+      "position":{"mode":"grid","x":2,"y":2,"facing":"east"}
+  }},
+  { "id":"feature.bench", "structure":{
+      "type":"feature","subtype":"bench",
+      "position":{"mode":"grid","x":2,"y":2}
+  }},
+  { "id":"item.morris-set", "structure":{
+      "type":"item","position":{"mode":"grid","x":1,"y":1}
+  }},
+  { "id":"enc.orc-pair", "structure":{
+      "type":"encounter","actors":["actor.orc-a","actor.orc-b"],
+      "initial_behavior":"distracted-arguing"
+  }}
+]
+```
 ## Advantages of Layering
 
 * **Reusability**: one structure supports multiple lore or stats overlays.  
