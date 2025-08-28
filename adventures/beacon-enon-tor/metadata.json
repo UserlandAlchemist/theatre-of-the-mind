@@ -1,0 +1,77 @@
+{
+  "id": "beacon-enon-tor",
+  "title": "The Beacon at Enon Tor",
+  "summary": "A coastal beacon tower has gone dark. Investigate the annex and tower, deal with its new occupants, and restore the light.",
+  "map_scale": { "square_size_ft": 10 },
+  "default_lore": "canonical",
+  "default_stats": "ose-basic",
+  "adventure_tier": "introductory",
+  "environment": ["coastal", "tower", "stone-annex"],
+  "themes": ["investigation", "undead", "humanoids", "stronghold-infiltration"],
+  "content_warnings": ["undead (zombies)"],
+  "authors": [
+    {"name": "Michael Brunton"},
+    {"name": "Graeme", "note": "co‑author credit given as 'with Graeme' in source text; full surname tbd"}
+  ],
+  "original_system": {
+    "name": "D&D Basic",
+    "edition": "BECMI/Basic-era",
+    "notes": "Module text states 'requires the D&D® Basic game rules'."
+  },
+  "conversion_targets": [
+    {"id": "ose-basic", "status": "planned"}
+  ],
+  "recommended_level": { "min": 1, "max": 1 },
+  "recommended_party_size": { "min": 4, "max": 7 },
+  "recommended_party_composition": [
+    {
+      "requirement": "at_least_one",
+      "role": "arcane",
+      "examples": ["elf", "magic-user"]
+    },
+    {
+      "requirement": "optional",
+      "role": "healer",
+      "examples": ["cleric"]
+    }
+  ],
+  "expected_play_time": {
+      "sessions": { "min": 1, "max": 2 },
+      "hours_per_session": 3
+  },
+  "regions": [
+    "approach",
+    "ground-floor",
+    "tower",
+    "cellar"
+  ],
+  "assets": {
+    "maps": [
+      {"id": "beacon-map", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-map.webp", "kind": "player"}
+    ],
+    "art": [
+      {"id": "title-plate", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-title.webp"},
+      {"id": "kitchen", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-kitchen.webp"},
+      {"id": "bugbear", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-bugbear.webp"},
+      {"id": "zombies", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-zombies.webp"},
+      {"id": "archer", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-archer.webp"},
+      {"id": "approach", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-approach.webp"},
+      {"id": "game", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-game.webp"},
+      {"id": "karthedon", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-karthedon.webp"},
+      {"id": "zodiac", "path": "docs/private/imagine-magazine/assets/imagine-01-beacon-zodiac.webp"}
+    ]
+  },
+  "published_in": {
+      "kind": "magazine",
+      "title": "Imagine",
+      "issue": "01",
+      "date": "1983-04",
+      "publisher": "TSR UK Ltd.",
+      "notes": "Published in Imagine magazine issue 1 as a mini-module."
+  },
+  "legal": {
+    "license": "All rights reserved / for private research & transformation",
+    "ogl_status": "See repository LICENSE and LICENSE-OGL.md",
+    "notes": "Canonical lore will be paraphrased where required."
+  }
+}
