@@ -10,14 +10,17 @@ These layers are kept separate so they can be recombined at runtime. For example
 
 ## Layer responsibilities (normative)
 
-- **Structure** = geometry and object graph only. It declares:
-  - spaces (rooms/corridors), connections (exits), and relative placement;
-  - durable features/furniture, containers, light sources;
-  - minimal state flags that change access or perception (`locked`, `hidden`, `lit`);
-  - grouping relationships (e.g., encounter contains actors).
-  - **Structure never encodes numeric mechanics, prices, XP, or descriptive prose.**
-- **Lore** = names and text (boxed text, GM notes) for anything declared in structure.
-- **Stats** = system mechanics for actors/items/traps and any rules effects; may map an item to a mechanical archetype (e.g., “meat cleaver counts as hand axe”).
+* **Structure** = geometry and object graph only. It declares:
+  * spaces (rooms/corridors), connections (exits), and relative placement;
+  * durable features/furniture, containers, light sources;
+  * minimal state flags that change access or perception (`locked`, `hidden`, `lit`);
+  * grouping relationships (e.g., encounter contains actors).
+
++**Normative rule:** Structure encodes geometry and object graph only.  
++It MUST NOT include mechanics (numbers, DCs, XP, prices) or descriptive prose.  
++Such content belongs in Lore or Stats layers.**Lore** = names and text (boxed text, GM notes) for anything declared in structure.
+
+* **Stats** = system mechanics for actors/items/traps and any rules effects; may map an item to a mechanical archetype (e.g., “meat cleaver counts as hand axe”).
 
 ---
 
@@ -170,6 +173,12 @@ Example room:
 
 ### 📐 Geometry & Positioning
 
+**Axis convention:**  
+
+* `width` = x (east)  
+* `depth` = y (north)  
+* `height` = z (vertical)  
+
 Rooms are defined relative to their own **local grid**, with the **south-west (SW) corner as origin (0,0)**.  
 No absolute world coordinates are used — geometry is always local to the room.
 
@@ -189,6 +198,8 @@ No absolute world coordinates are used — geometry is always local to the room.
     [1,1,1]
   ] } }
 ```
+
+
 
 **Positioning (universal)**
 
@@ -210,24 +221,28 @@ Loader rule: wall mode must be converted internally to canonical grid form.
 * For rectangles, `offset_squares` counts from the **western corner** of the named wall.
 * An exit is valid iff all edge cells it occupies are on the **perimeter** and **contiguous**.
 * `width_squares` defaults to `1` if omitted.
-* Vertical exits (`up`/`down`) may omit `x,y`. If provided, they must lie on the footprint but **need not** touch perimeter.
+* Vertical exits (up/down) are declared in exit definitions via subtype and may omit coordinates. They are not valid values for position.wall.
 * Wall mode MUST NOT be used on irregular rooms; use explicit `grid` placement.
 
 ---
+### Entity Types & Subtypes
 
-### Structural entity subtypes
-
-- `type: "feature"` → `subtype: bed|table|bench|shelf|fireplace|tapestry|light|altar|desk|chest`
-- `type: "item"` → movable object, no mechanics here.
-- `type: "encounter"` → groups actors and sets an initial situation.
+| type      | common subtypes / fields                              |
+|-----------|-------------------------------------------------------|
+| room      | shape, grid, exits                                    |
+| exit      | door, secret-door, portcullis, stairs, ladder, trapdoor, tunnel |
+| feature   | bed, table, bench, shelf, fireplace, tapestry, light, altar, desk, chest |
+| item      | movable objects; may be `container`                   |
+| encounter | `actors:[]`, optional `initial_behavior`               |
+| overlay   | light, fog, sound, scent                              |
 
 Example encounter:
 
 ```json
 { "id":"enc.orc-pair", "structure":{
-    "type":"encounter",
-    "actors":["actor.orc-a","actor.orc-b"],
-    "initial_behavior":"distracted-arguing"
+  "type":"encounter",
+  "actors":["actor.orc-a","actor.orc-b"],
+  "initial_behavior":"distracted-arguing"
 }}
 ```
 
@@ -311,7 +326,8 @@ Structure must never include `counts_as`.
 
 * **IDs**: unique within an adventure. Prefix with region (`g1`, `t6`, `c10`).  
 * **Lore keys**: hierarchical, prefixed by type (`room.g1`, `actor.bugbear-guard`).  
-* **Stats keys**: mirror lore keys where practical; add type prefixes for clarity (`trap.loose-stair`).  
+* **Stats keys**: mirror lore keys where practical; add type prefixes for clarity (`trap.loose-stair`).
+* **Rule:** Stats keys MUST mirror lore keys unless a type prefix adds clarity (e.g., trap.loose-stair). Arbitrary divergence is not allowed.
 
 ---
 
@@ -486,7 +502,7 @@ On import, the loader MUST:
         "x": { "type": "integer", "minimum": 0 },
         "y": { "type": "integer", "minimum": 0 },
         "facing": { "enum": ["north","east","south","west"] },
-        "wall": { "enum": ["north","east","south","west","up","down"] },
+        "wall": { "enum": ["north","east","south","west"] },
         "offset_squares": { "type": "integer", "minimum": 0 },
         "width_squares": { "type": "integer", "minimum": 1 }
       },
